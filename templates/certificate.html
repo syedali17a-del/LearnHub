@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Certificate · {{ course.course_name }}{% endblock %}
+{% block content %}
+<div class="app-shell">
+    <a href="{{ url_for('certificates') }}" class="btn btn-sm btn-outline-primary mb-3 no-print"><i class="bi bi-arrow-left"></i> Back</a>
+
+    <div class="certificate-frame" id="certificate-frame">
+        <i class="bi bi-award-fill" style="font-size:48px;color:var(--accent);"></i>
+        <p class="cert-label">Certificate of Completion</p>
+        <h1 class="cert-name">{{ username }}</h1>
+        <p style="color:var(--muted);margin-bottom:10px;position:relative;">has successfully completed all 3 levels of</p>
+        <h2 class="cert-course">{{ course.course_name }}</h2>
+
+        <div class="score-grid" style="grid-template-columns:1fr 1fr;position:relative;">
+            <div class="score-box">
+                <h3 data-count-to="{{ overall_score_percent }}" data-count-suffix="%">0%</h3>
+                <span>Overall Score ({{ total_scored }}/{{ total_possible }})</span>
+            </div>
+            <div class="score-box alt">
+                <h3 style="font-size:var(--fs-lg);">{{ time_taken }}</h3>
+                <span>Time to Complete</span>
+            </div>
+        </div>
+
+        <p style="color:var(--muted);font-size:var(--fs-sm);position:relative;">Issued {{ date }} · LearnHub</p>
+    </div>
+
+    <button onclick="window.print()" class="btn btn-primary btn-block mt-3 no-print"><i class="bi bi-download"></i> Download Certificate (PDF)</button>
+</div>
+{% endblock %}

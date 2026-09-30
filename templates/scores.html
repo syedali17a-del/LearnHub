@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% from "_macros.html" import empty_state %}
+{% block title %}My Scores{% endblock %}
+{% block content %}
+<div class="app-shell">
+    <div class="page-header">
+        <div><p class="eyebrow">Performance</p><h1>My Scores</h1></div>
+    </div>
+
+    <div class="score-grid">
+        <div class="score-box"><h3 data-count-to="{{ average_score|round|int }}" data-count-suffix="%">0%</h3><span>Average</span></div>
+        <div class="score-box alt"><h3 data-count-to="{{ highest_score|round|int }}" data-count-suffix="%">0%</h3><span>Highest</span></div>
+        <div class="score-box"><h3 data-count-to="{{ latest_score|round|int }}" data-count-suffix="%">0%</h3><span>Latest</span></div>
+        <div class="score-box alt"><h3 data-count-to="{{ quizzes_completed }}">0</h3><span>Completed</span></div>
+    </div>
+
+    {% if rows %}
+    <div class="chart-card">
+        <h3>Score Trend</h3>
+        <div class="chart-wrap"><canvas id="scoreTrendChart"></canvas></div>
+    </div>
+    {% endif %}
+
+    <div class="surface-card mt-3">
+        <h3 style="font-size:var(--fs-md);margin-bottom:6px;">History</h3>
+        {% if rows %}
+            {% for row in rows %}
+            <div class="score-table-row">
+                <span>{{ row.course_name }}</span>
+                <strong style="color:var(--primary);">{{ row.score|round|int }}%</strong>
+            </div>
+            {% endfor %}
+        {% else %}
+            {{ empty_state('bi-bar-chart', 'No quizzes taken yet', 'Take a quiz to start tracking your scores.', url_for('courses'), 'Browse Courses') }}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+{% if rows %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+    var labels = {{ rows | reverse | map(attribute='taken_at') | list | tojson }}.map(function (t) { return t.split(" ")[0]; });
+    var data = {{ rows | reverse | map(attribute='score') | list | tojson }};
+    var c = LH.chartColors();
+    var ctx = document.getElementById("scoreTrendChart");
+    if (!ctx) return;
+    var gradient = ctx.getContext("2d").createLinearGradient(0, 0, 0, 220);
+    gradient.addColorStop(0, "rgba(79,70,229,.35)");
+    gradient.addColorStop(1, "rgba(79,70,229,0)");
+    var chart = new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Score",
+                data: data,
+                borderColor: c.primary,
+                backgroundColor: gradient,
+                fill: true,
+                tension: 0.35,
+                pointBackgroundColor: c.primary,
+                pointRadius: 4,
+                borderWidth: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, max: 100, ticks: { color: c.muted, callback: function (v) { return v + "%"; } }, grid: { color: c.border } },
+                x: { ticks: { color: c.muted }, grid: { display: false } }
+            }
+        }
+    });
+    LH.registerChart(chart);
+})();
+</script>
+{% endif %}
+{% endblock %}

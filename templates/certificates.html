@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "_macros.html" import empty_state %}
+{% block title %}Certificates{% endblock %}
+{% block content %}
+<div class="app-shell">
+    <div class="page-header">
+        <div><p class="eyebrow">Your achievements</p><h1>Certificates</h1></div>
+    </div>
+
+    {% if rows %}
+        {% for row in rows %}
+        <div class="course-item">
+            <div>
+                <h4>{{ row.course_name }}</h4>
+                <p style="font-size:var(--fs-xs);color:var(--muted);"><i class="bi bi-check-circle-fill" style="color:var(--success);"></i> All 3 levels complete</p>
+            </div>
+            <a href="{{ url_for('certificate', course_id=row.id) }}" class="btn btn-primary btn-sm"><i class="bi bi-award-fill"></i> View</a>
+        </div>
+        {% endfor %}
+    {% else %}
+        {{ empty_state('bi-award', 'No certificates yet', 'Pass all 3 levels of a course to unlock its certificate.', url_for('courses'), 'Browse Courses') }}
+    {% endif %}
+</div>
+{% endblock %}

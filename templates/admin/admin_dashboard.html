@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block top_bar %}{% endblock %}
+{% block bottom_nav %}{% endblock %}
+{% block content %}
+<div class="admin-shell">
+    {% include "admin/_admin_nav.html" %}
+
+    <h1 style="font-size:var(--fs-xl);margin-bottom:18px;">Overview</h1>
+
+    <div class="stat-grid">
+        <div class="stat-card">
+            <div class="icon"><i class="bi bi-people-fill"></i></div>
+            <div class="num" data-count-to="{{ stats.students }}">0</div>
+            <div class="label">Students</div>
+        </div>
+        <div class="stat-card">
+            <div class="icon"><i class="bi bi-journal-bookmark-fill"></i></div>
+            <div class="num" data-count-to="{{ stats.courses }}">0</div>
+            <div class="label">Courses</div>
+        </div>
+        <div class="stat-card">
+            <div class="icon"><i class="bi bi-patch-question-fill"></i></div>
+            <div class="num" data-count-to="{{ stats.quizzes }}">0</div>
+            <div class="label">Quiz Questions</div>
+        </div>
+        <div class="stat-card">
+            <div class="icon"><i class="bi bi-bookmark-check-fill"></i></div>
+            <div class="num" data-count-to="{{ stats.enrollments }}">0</div>
+            <div class="label">Enrollments</div>
+        </div>
+    </div>
+
+    <div class="chart-card">
+        <h3>Platform Snapshot</h3>
+        <div class="chart-wrap"><canvas id="adminStatsChart"></canvas></div>
+    </div>
+
+    <div class="admin-panel">
+        <h3>Quick Actions</h3>
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{{ url_for('admin_courses') }}" class="btn btn-primary btn-sm"><i class="bi bi-plus-circle"></i> Add Course</a>
+            <a href="{{ url_for('admin_quizzes') }}" class="btn btn-primary btn-sm"><i class="bi bi-plus-circle"></i> Add Quiz</a>
+            <a href="{{ url_for('admin_materials') }}" class="btn btn-primary btn-sm"><i class="bi bi-plus-circle"></i> Add Material</a>
+            <a href="{{ url_for('admin_announcements') }}" class="btn btn-primary btn-sm"><i class="bi bi-megaphone"></i> Post Announcement</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+    var c = LH.chartColors();
+    var ctx = document.getElementById("adminStatsChart");
+    if (!ctx) return;
+    var chart = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: ["Students", "Courses", "Quiz Questions", "Enrollments"],
+            datasets: [{
+                data: [{{ stats.students }}, {{ stats.courses }}, {{ stats.quizzes }}, {{ stats.enrollments }}],
+                backgroundColor: [c.primary, c.violet, c.accent, c.primary],
+                borderRadius: 8,
+                maxBarThickness: 46
+            }]
+        },
+        options: {
+            indexAxis: "y",
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { beginAtZero: true, ticks: { color: c.muted }, grid: { color: c.border } },
+                y: { ticks: { color: c.ink }, grid: { display: false } }
+            }
+        }
+    });
+    LH.registerChart(chart);
+})();
+</script>
+{% endblock %}

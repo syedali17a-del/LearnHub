@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#2563eb">
+    <title>{% block title %}Home{% endblock %} · LearnHub</title>
+
+    <script>
+        /* Set theme before first paint to avoid a light/dark flash. */
+        (function () {
+            try {
+                var stored = localStorage.getItem("lh-theme");
+                var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+                document.documentElement.setAttribute("data-theme", theme);
+            } catch (e) {}
+        })();
+    </script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+{% from "_macros.html" import flash_messages %}
+{{ flash_messages() }}
+
+{% block top_bar %}
+{% if session.get('email') %}
+<header class="app-topbar">
+    <a href="{{ url_for('dashboard') }}" class="app-topbar-brand">
+        <span class="brand-mark"><i class="bi bi-mortarboard-fill"></i></span> LearnHub
+    </a>
+    <div class="app-topbar-actions">
+        <button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle dark mode">
+            <i class="bi bi-moon-stars-fill"></i>
+        </button>
+        <a href="{{ url_for('profile') }}" class="app-topbar-avatar" aria-label="Profile">
+            {% if current_user and current_user.profile_picture %}
+                <img src="{{ url_for('profile_picture_file', filename=current_user.profile_picture) }}" alt="">
+            {% else %}
+                <i class="bi bi-person-fill"></i>
+            {% endif %}
+        </a>
+    </div>
+</header>
+{% else %}
+<button type="button" class="theme-toggle theme-toggle-floating" data-theme-toggle aria-label="Toggle dark mode">
+    <i class="bi bi-moon-stars-fill"></i>
+</button>
+{% endif %}
+{% endblock %}
+
+{% block content %}{% endblock %}
+
+{% block bottom_nav %}
+{% if session.get('email') %}
+<div class="bottom-nav">
+    <a href="{{ url_for('dashboard') }}"><i class="bi bi-house-door-fill"></i><span>Home</span></a>
+    <a href="{{ url_for('courses') }}"><i class="bi bi-journal-bookmark-fill"></i><span>Courses</span></a>
+    <a href="{{ url_for('materials') }}"><i class="bi bi-folder2-open"></i><span>Materials</span></a>
+    <a href="{{ url_for('progress') }}"><i class="bi bi-graph-up-arrow"></i><span>Progress</span></a>
+    <a href="{{ url_for('profile') }}"><i class="bi bi-person-circle"></i><span>Profile</span></a>
+</div>
+{% endif %}
+{% endblock %}
+
+<div class="modal-overlay" id="confirm-modal-overlay">
+    <div class="glass-modal" role="alertdialog" aria-modal="true">
+        <div class="modal-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+        <h3 data-modal-title>Are you sure?</h3>
+        <p data-modal-message>This action cannot be undone.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-outline-primary" data-modal-cancel>Cancel</button>
+            <button type="button" class="btn btn-danger" data-modal-confirm>Delete</button>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf_field %}
+{% block title %}{{ course.course_name }} Quiz{% endblock %}
+{% block content %}
+<div class="app-shell">
+    <a href="{{ url_for('course_details', course_id=course.id) }}" class="btn btn-sm btn-outline-primary mb-3"><i class="bi bi-arrow-left"></i> Back to Course</a>
+
+    <div class="page-header" style="align-items:flex-start;">
+        <div>
+            <p class="eyebrow">{{ course.course_name }}</p>
+            <h1 style="font-size:var(--fs-xl);">{{ level_label }}</h1>
+        </div>
+        <span class="badge-pill">Pass with {{ pass_score }}/{{ total_questions }}</span>
+    </div>
+
+    <div class="d-flex gap-2 mb-3">
+        {% for lp in level_progress %}
+        <span class="badge-pill {{ 'badge-enrolled' if lp.level == level else '' }}" style="{{ 'opacity:.55;' if not lp.unlocked }}">
+            {% if lp.passed %}<i class="bi bi-check-circle-fill"></i>{% elif not lp.unlocked %}<i class="bi bi-lock-fill"></i>{% endif %}
+            L{{ lp.level }}
+        </span>
+        {% endfor %}
+    </div>
+
+    <p class="quiz-progress-label" id="quiz-progress-count">0 of {{ questions|length }} answered</p>
+
+    <form method="POST" action="{{ url_for('submit_quiz', course_id=course.id, level=level) }}" id="quiz-form">
+        {{ csrf_field() }}
+        {% for q in questions %}
+        <div class="question-card">
+            <span class="q-number">Question {{ loop.index }} of {{ questions|length }}</span>
+            <h4>{{ q.question }}</h4>
+            {% for option in q.options %}
+            <label class="option-card">
+                <input type="radio" name="q{{ q.id }}" value="{{ option }}" required>
+                <span class="dot"></span>
+                <span>{{ option }}</span>
+            </label>
+            {% endfor %}
+        </div>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-primary btn-block mt-3">
+            <i class="bi bi-send-check-fill"></i> Submit Level {{ level }}
+        </button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% from "_macros.html" import progress_ring, empty_state, course_icon_chip %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="app-shell">
+
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">Welcome back,</p>
+            <h1>{{ session.get('username') }} 👋</h1>
+        </div>
+        <div class="avatar">
+            {% if current_user and current_user.profile_picture %}
+                <img src="{{ url_for('profile_picture_file', filename=current_user.profile_picture) }}" alt="" data-fade-in>
+            {% else %}
+                <i class="bi bi-person-fill"></i>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="hero-banner">
+        <div>
+            <h2>Keep learning, keep growing</h2>
+            <p>You're doing great — let's make progress today.</p>
+        </div>
+        {{ progress_ring(overall_progress) }}
+    </div>
+
+    {% if announcement %}
+    <div class="announcement-card mb-3">
+        <i class="bi bi-megaphone-fill" style="color:var(--accent);"></i>
+        {{ announcement.message }}
+    </div>
+    {% endif %}
+
+    <h2 class="section-title">Quick Access</h2>
+    <div class="quick-grid">
+        <a href="{{ url_for('courses') }}" class="quick-card">
+            <i class="bi bi-journal-bookmark-fill"></i>
+            <h3>Courses</h3>
+            <p>Browse &amp; enroll</p>
+        </a>
+        <a href="{{ url_for('materials') }}" class="quick-card">
+            <i class="bi bi-folder2-open"></i>
+            <h3>Materials</h3>
+            <p>Study resources</p>
+        </a>
+        <a href="{{ url_for('scores') }}" class="quick-card">
+            <i class="bi bi-bar-chart-fill"></i>
+            <h3>Scores</h3>
+            <p>View results</p>
+        </a>
+        <a href="{{ url_for('leaderboard') }}" class="quick-card">
+            <i class="bi bi-trophy-fill"></i>
+            <h3>Leaderboard</h3>
+            <p>Top learners</p>
+        </a>
+    </div>
+
+    {% if courses %}
+    <h2 class="section-title">Progress Overview</h2>
+    <div class="chart-card">
+        <div class="chart-wrap"><canvas id="progressChart"></canvas></div>
+    </div>
+    {% endif %}
+
+    <h2 class="section-title">My Enrolled Courses</h2>
+
+    {% if courses %}
+        {% for course in courses %}
+        <div class="course-item">
+            <div class="course-item-row">
+                {{ course_icon_chip(course) }}
+                <div style="flex:1;min-width:0;">
+                    <h4>{{ course.course_name }}</h4>
+                    <div class="bar-track">
+                        <div class="bar-fill" style="width:{{ progress.get(course.id, 0) }}%;"></div>
+                    </div>
+                </div>
+            </div>
+            <a href="{{ url_for('quiz_start', course_id=course.id) }}" class="btn btn-primary btn-sm">
+                {{ "View Certificate" if progress.get(course.id, 0) == 100 else ("Continue" if course.id in progress else "Start Quiz") }}
+            </a>
+        </div>
+        {% endfor %}
+    {% else %}
+        {{ empty_state('bi-journal-plus', 'No courses yet', "You haven't enrolled in anything yet — browse the catalog to get started.", url_for('courses'), 'Browse Courses') }}
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+{% if courses %}
+{% set progress_values = [] %}
+{% for c in courses %}{% set _ = progress_values.append(progress.get(c.id, 0)) %}{% endfor %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+    var labels = {{ courses | map(attribute='course_name') | list | tojson }};
+    var data = {{ progress_values | tojson }};
+    var c = LH.chartColors();
+    var ctx = document.getElementById("progressChart");
+    if (!ctx) return;
+    var chart = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Progress",
+                data: data,
+                backgroundColor: c.primary,
+                borderRadius: 8,
+                maxBarThickness: 36
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, max: 100, ticks: { color: c.muted, callback: function (v) { return v + "%"; } }, grid: { color: c.border } },
+                x: { ticks: { color: c.muted }, grid: { display: false } }
+            }
+        }
+    });
+    LH.registerChart(chart);
+})();
+</script>
+{% endif %}
+{% endblock %}

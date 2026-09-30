@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% from "_macros.html" import empty_state %}
+{% block title %}Leaderboard{% endblock %}
+{% block content %}
+<div class="app-shell">
+    <div class="page-header">
+        <div><p class="eyebrow">Top learners</p><h1>Leaderboard</h1></div>
+    </div>
+
+    {% if rows %}
+        {% for row in rows %}
+        <div class="leader-row">
+            <div class="leader-rank">{{ loop.index }}</div>
+            <div class="leader-name">
+                {{ row.username }}
+                <div style="font-size:var(--fs-xs);color:var(--muted);font-weight:500;">{{ row.courses_completed }} course{{ "s" if row.courses_completed != 1 }} completed</div>
+            </div>
+            <div class="leader-score">{{ row.avg_score|round|int }}%</div>
+        </div>
+        {% endfor %}
+    {% else %}
+        {{ empty_state('bi-trophy', 'No scores yet', 'Be the first to take a quiz and top the leaderboard.', url_for('courses'), 'Browse Courses') }}
+    {% endif %}
+</div>
+{% endblock %}

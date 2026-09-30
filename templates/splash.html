@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Welcome{% endblock %}
+{% block extra_head %}
+<meta http-equiv="refresh" content="2.5;url={{ url_for('welcome') }}">
+{% endblock %}
+{% block bottom_nav %}{% endblock %}
+{% block content %}
+<div class="splash-screen">
+    <div class="brand-logo"><i class="bi bi-mortarboard-fill"></i></div>
+    <h1>LearnHub</h1>
+    <p>Learn &bull; Practice &bull; Progress</p>
+</div>
+{% endblock %}

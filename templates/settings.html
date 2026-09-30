@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf_field %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<div class="app-shell">
+    <div class="page-header">
+        <div><p class="eyebrow">Account</p><h1>Settings</h1></div>
+    </div>
+
+    <div class="surface-card settings-section">
+        <h3><i class="bi bi-image"></i> Profile Picture</h3>
+        <form method="POST" action="{{ url_for('update_profile_picture') }}" enctype="multipart/form-data">
+            {{ csrf_field() }}
+            <div class="form-group">
+                <input type="file" id="photo-input" name="photo" accept=".png,.jpg,.jpeg,.webp"
+                       class="form-control" required style="display:none;">
+                <label for="photo-input" data-file-label-for="photo-input"
+                       class="btn btn-outline-primary btn-block" style="cursor:pointer;">
+                    <i class="bi bi-upload"></i> Choose Image
+                </label>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Upload Picture</button>
+        </form>
+    </div>
+
+    <div class="surface-card settings-section">
+        <h3><i class="bi bi-key-fill"></i> Change Password</h3>
+        <form method="POST" action="{{ url_for('update_password') }}">
+            {{ csrf_field() }}
+            <div class="form-group text-start">
+                <label class="field-label">Current Password</label>
+                <input type="password" name="current_password" class="form-control" required>
+            </div>
+            <div class="form-group text-start">
+                <label class="field-label">New Password</label>
+                <input type="password" id="new-password" name="new_password" class="form-control" minlength="6" required>
+            </div>
+            <div class="form-group text-start">
+                <label class="field-label">Confirm New Password</label>
+                <input type="password" id="confirm-password" name="confirm_password" class="form-control" minlength="6" required>
+                <small id="settings-match-msg" style="font-size:var(--fs-xs);"></small>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Update Password</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

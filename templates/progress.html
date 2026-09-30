@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% from "_macros.html" import empty_state, course_icon_chip %}
+{% block title %}Progress{% endblock %}
+{% block content %}
+<div class="app-shell">
+    <div class="page-header">
+        <div><p class="eyebrow">Track</p><h1>My Progress</h1></div>
+    </div>
+
+    {% if courses %}
+        {% for course in courses %}
+        <div class="surface-card mb-3">
+            <div class="course-item-row mb-2">
+                {{ course_icon_chip(course) }}
+                <div style="flex:1;min-width:0;">
+                    <h4 style="margin-bottom:2px;">{{ course.course_name }}</h4>
+                    <div class="bar-track">
+                        <div class="bar-fill" style="width:{{ progress.get(course.id, 0) }}%;"></div>
+                    </div>
+                </div>
+                <strong style="color:var(--primary);">{{ progress.get(course.id, 0) }}%</strong>
+            </div>
+
+            <div class="level-stepper">
+                {% for lv in course_levels[course.id] %}
+                {% set state = 'is-passed' if lv.passed else ('is-current' if lv.unlocked else 'is-locked') %}
+                <div class="level-step {{ state }}">
+                    {% if lv.passed %}<i class="bi bi-check-circle-fill"></i>
+                    {% elif lv.unlocked %}<i class="bi bi-play-circle-fill"></i>
+                    {% else %}<i class="bi bi-lock-fill"></i>{% endif %}
+                    <div class="lv-name">Level {{ lv.level }}</div>
+                    <div class="lv-score">{{ lv.best_score }}/15 · need {{ lv.pass_score }}</div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if progress.get(course.id, 0) == 100 %}
+            <a href="{{ url_for('certificate', course_id=course.id) }}" class="btn btn-outline-primary btn-sm mt-3">
+                <i class="bi bi-award-fill"></i> View Certificate
+            </a>
+            {% else %}
+            <a href="{{ url_for('quiz_start', course_id=course.id) }}" class="btn btn-outline-primary btn-sm mt-3">
+                <i class="bi bi-play-fill"></i> Continue
+            </a>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        {{ empty_state('bi-graph-up-arrow', 'No progress yet', 'Enroll in a course and take its Level 1 quiz to start tracking progress.', url_for('courses'), 'Browse Courses') }}
+    {% endif %}
+</div>
+{% endblock %}

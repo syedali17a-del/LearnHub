@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf_field %}
+{% block title %}Manage Quizzes{% endblock %}
+{% block top_bar %}{% endblock %}
+{% block bottom_nav %}{% endblock %}
+{% block content %}
+<div class="admin-shell">
+    {% include "admin/_admin_nav.html" %}
+
+    <div class="admin-panel">
+        <h3>{{ "Edit Quiz Question" if edit_quiz else "Add Quiz Question" }}</h3>
+        <form method="POST" action="{{ url_for('admin_quiz_edit', quiz_id=edit_quiz.id) if edit_quiz else url_for('admin_quiz_add') }}">
+            {{ csrf_field() }}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="field-label">Course</label>
+                    <select name="course_id" class="form-select" required>
+                        <option value="">Select a course</option>
+                        {% for c in course_list %}
+                        <option value="{{ c.id }}" {{ "selected" if (edit_quiz and edit_quiz.course_id == c.id) or (not edit_quiz and filter_course_id == c.id) }}>{{ c.course_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="field-label">Level</label>
+                    <select name="level" class="form-select" required>
+                        {% for lvl in (1, 2, 3) %}
+                        <option value="{{ lvl }}" {{ "selected" if (edit_quiz and edit_quiz.level == lvl) or (not edit_quiz and filter_level == lvl) }}>{{ level_labels[lvl] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label class="field-label">Question</label>
+                    <input type="text" name="question" class="form-control" value="{{ edit_quiz.question if edit_quiz else '' }}" required>
+                </div>
+                {% for i in range(1, 5) %}
+                <div class="col-md-6">
+                    <label class="field-label">
+                        <input type="radio" name="correct_option" value="{{ i }}"
+                            {{ "checked" if (edit_quiz and edit_quiz.answer == edit_quiz["option" ~ i]) or (not edit_quiz and i == 1) }}>
+                        Option {{ i }} {{ "(mark as correct)" if not edit_quiz and i == 1 }}
+                    </label>
+                    <input type="text" name="option{{ i }}" class="form-control" value="{{ edit_quiz['option' ~ i] if edit_quiz else '' }}" required>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="d-flex gap-2 mt-3">
+                <button type="submit" class="btn btn-primary">{{ "Save Changes" if edit_quiz else "Add Question" }}</button>
+                {% if edit_quiz %}<a href="{{ url_for('admin_quizzes', course_id=filter_course_id, level=filter_level) }}" class="btn btn-outline-primary">Cancel</a>{% endif %}
+            </div>
+        </form>
+    </div>
+
+    <div class="admin-panel">
+        <h3>Quiz Bank ({{ quizzes|length }} of 15 shown)</h3>
+        <form method="GET" action="{{ url_for('admin_quizzes') }}" class="row g-2 mb-3" id="quiz-filter-form">
+            <div class="col-7">
+                <select name="course_id" class="form-select" onchange="document.getElementById('quiz-filter-form').submit()">
+                    {% for c in course_list %}
+                    <option value="{{ c.id }}" {{ "selected" if c.id == filter_course_id }}>{{ c.course_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-5">
+                <select name="level" class="form-select" onchange="document.getElementById('quiz-filter-form').submit()">
+                    {% for lvl in (1, 2, 3) %}
+                    <option value="{{ lvl }}" {{ "selected" if lvl == filter_level }}>{{ level_labels[lvl] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+
+        <div class="table-scroll">
+        <table class="admin-table">
+            <tr><th>#</th><th>Question</th><th>Correct Answer</th><th>Actions</th></tr>
+            {% for q in quizzes %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ q.question }}</td>
+                <td>{{ q.answer }}</td>
+                <td class="row-actions">
+                    <a href="{{ url_for('admin_quizzes', edit=q.id, course_id=filter_course_id, level=filter_level) }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i></a>
+                    <form method="POST" action="{{ url_for('admin_quiz_delete', quiz_id=q.id) }}"
+                          data-confirm-title="Delete question?"
+                          data-confirm-message="This quiz question will be permanently removed.">
+                        {{ csrf_field() }}
+                        <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        </div>
+        {% if not quizzes %}
+        <p style="text-align:center;color:var(--muted);padding:20px 0;">No questions in this level yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

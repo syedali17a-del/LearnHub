@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf_field %}
+{% block title %}Manage Students{% endblock %}
+{% block top_bar %}{% endblock %}
+{% block bottom_nav %}{% endblock %}
+{% block content %}
+<div class="admin-shell">
+    {% include "admin/_admin_nav.html" %}
+
+    <div class="admin-panel">
+        <h3>All Students ({{ students|length }})</h3>
+        <div class="table-scroll">
+        <table class="admin-table">
+            <tr><th>Username</th><th>Email</th><th>Enrolled</th><th>Joined</th><th>Actions</th></tr>
+            {% for s in students %}
+            <tr>
+                <td>{{ s.username }}</td>
+                <td>{{ s.email }}</td>
+                <td>{{ s.enrolled_count }}</td>
+                <td>{{ s.created_at.split(' ')[0] if s.created_at else '—' }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('admin_student_delete', user_id=s.id) }}"
+                          data-confirm-title="Remove student?"
+                          data-confirm-message="This removes {{ s.username }} and all of their data.">
+                        {{ csrf_field() }}
+                        <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        </div>
+        {% if not students %}
+        <p style="text-align:center;color:var(--muted);padding:20px 0;">No students registered yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

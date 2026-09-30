@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Quiz Result{% endblock %}
+{% block content %}
+<div class="app-shell">
+    <div class="surface-card result-hero">
+        {% if passed %}
+            <i class="bi bi-trophy-fill" style="color:var(--accent);"></i>
+            <h1 style="font-size:var(--fs-xl);">Level {{ level }} Passed! 🎉</h1>
+        {% else %}
+            <i class="bi bi-arrow-repeat" style="color:var(--danger);"></i>
+            <h1 style="font-size:var(--fs-xl);">Not Quite — Try Again</h1>
+        {% endif %}
+        <p style="color:var(--muted);">{{ course.course_name }} · {{ level_label }}</p>
+
+        <div class="score-grid" style="grid-template-columns:1fr 1fr;">
+            <div class="score-box"><h3 data-count-to="{{ score }}">0</h3><span>Your Score (out of {{ total_questions }})</span></div>
+            <div class="score-box alt"><h3>{{ pass_score }}/{{ total_questions }}</h3><span>Needed to Pass</span></div>
+        </div>
+
+        {% if passed and course_complete %}
+            <div class="announcement-card mb-3" style="text-align:left;">
+                <i class="bi bi-mortarboard-fill" style="color:var(--accent);"></i>
+                You've completed every level of this course — your certificate is ready!
+            </div>
+            <a href="{{ url_for('certificate', course_id=course.id) }}" class="btn btn-primary btn-block">
+                <i class="bi bi-award-fill"></i> Get Your Certificate
+            </a>
+        {% elif passed and next_level %}
+            <a href="{{ url_for('quiz', course_id=course.id, level=next_level) }}" class="btn btn-primary btn-block">
+                <i class="bi bi-unlock-fill"></i> Start Level {{ next_level }}
+            </a>
+        {% else %}
+            <a href="{{ url_for('quiz', course_id=course.id, level=level) }}" class="btn btn-primary btn-block">
+                <i class="bi bi-arrow-repeat"></i> Retake Level {{ level }}
+            </a>
+        {% endif %}
+        <a href="{{ url_for('course_details', course_id=course.id) }}" class="btn btn-outline-primary btn-block mt-2">Back to Course</a>
+    </div>
+</div>
+{% endblock %}

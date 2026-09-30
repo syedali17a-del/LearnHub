@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<div class="app-shell">
+    <div class="profile-hero">
+        <div class="profile-cover"></div>
+        <div class="profile-avatar{{ ' skeleton skeleton-loading' if user.profile_picture }}">
+            {% if user.profile_picture %}
+                <img src="{{ url_for('profile_picture_file', filename=user.profile_picture) }}" alt="" data-fade-in>
+            {% else %}
+                <i class="bi bi-person-fill"></i>
+            {% endif %}
+        </div>
+        <h1 style="font-size:var(--fs-xl);">{{ user.username }}</h1>
+        <p style="color:var(--muted);font-size:var(--fs-sm);">{{ user.email }}</p>
+    </div>
+
+    <div class="surface-card">
+        <div class="info-row"><span class="label">Enrolled Courses</span><span class="value">{{ enrolled_count }}</span></div>
+        <div class="info-row"><span class="label">Member Since</span><span class="value">{{ user.created_at.split(' ')[0] if user.created_at else '—' }}</span></div>
+    </div>
+
+    <a href="{{ url_for('settings') }}" class="btn btn-primary btn-block mt-3"><i class="bi bi-gear-fill"></i> Account Settings</a>
+    <a href="{{ url_for('logout') }}" class="btn btn-outline-primary btn-block mt-2"><i class="bi bi-box-arrow-right"></i> Log Out</a>
+</div>
+{% endblock %}

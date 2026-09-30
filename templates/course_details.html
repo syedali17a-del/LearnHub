@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf_field, difficulty_badge, rating_stars %}
+{% block title %}{{ course.course_name }}{% endblock %}
+{% block content %}
+<div class="app-shell">
+    <a href="{{ url_for('courses') }}" class="btn btn-sm btn-outline-primary mb-3"><i class="bi bi-arrow-left"></i> Back to Courses</a>
+
+    <div class="surface-card">
+        <div class="course-banner" style="height:130px;font-size:44px;margin-bottom:20px;"><i class="bi bi-book-half"></i></div>
+
+        <div class="course-card-tags mb-2">
+            {{ difficulty_badge(course) }}
+            {{ rating_stars(course) }}
+        </div>
+
+        <h1 style="font-size:var(--fs-xl);margin-bottom:10px;">{{ course.course_name }}</h1>
+
+        <div class="meta mb-3">
+            {% if course.duration %}<span><i class="bi bi-clock"></i> {{ course.duration }}</span>{% endif %}
+            {% if course.instructor %}<span><i class="bi bi-person"></i> {{ course.instructor }}</span>{% endif %}
+            <span><i class="bi bi-folder2"></i> {{ material_count }} materials</span>
+            <span><i class="bi bi-patch-question"></i> {{ quiz_count }} quiz questions</span>
+        </div>
+
+        <p style="font-size:var(--fs-sm);line-height:1.7;margin-bottom:22px;">
+            {{ course.description or "No description added yet for this course." }}
+        </p>
+
+        {% if not session.get('email') %}
+            <a href="{{ url_for('login') }}" class="btn btn-primary btn-block">Log in to Enroll</a>
+        {% elif enrolled %}
+            <div class="level-stepper mb-3">
+                {% for lv in level_progress %}
+                {% set state = 'is-passed' if lv.passed else ('is-current' if lv.unlocked else 'is-locked') %}
+                <div class="level-step {{ state }}">
+                    {% if lv.passed %}<i class="bi bi-check-circle-fill"></i>
+                    {% elif lv.unlocked %}<i class="bi bi-play-circle-fill"></i>
+                    {% else %}<i class="bi bi-lock-fill"></i>{% endif %}
+                    <div class="lv-name">Level {{ lv.level }}</div>
+                    <div class="lv-score">{{ lv.best_score }}/15</div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                {% if course_complete %}
+                <a href="{{ url_for('certificate', course_id=course.id) }}" class="btn btn-primary"><i class="bi bi-award-fill"></i> View Certificate</a>
+                {% else %}
+                <a href="{{ url_for('quiz_start', course_id=course.id) }}" class="btn btn-primary"><i class="bi bi-patch-question-fill"></i> Continue Quiz</a>
+                {% endif %}
+                <a href="{{ url_for('materials') }}" class="btn btn-outline-primary"><i class="bi bi-folder2-open"></i> Materials</a>
+            </div>
+        {% else %}
+            <form method="POST" action="{{ url_for('enroll', course_id=course.id) }}">
+                {{ csrf_field() }}
+                <button type="submit" class="btn btn-primary btn-block"><i class="bi bi-plus-circle-fill"></i> Enroll Now</button>
+            </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

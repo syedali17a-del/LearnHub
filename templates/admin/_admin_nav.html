@@ -1,0 +1,18 @@
+<div class="admin-topbar">
+    <div class="brand"><i class="bi bi-mortarboard-fill"></i> LearnHub Admin</div>
+    <div class="admin-topbar-actions">
+        <button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle dark mode">
+            <i class="bi bi-moon-stars-fill"></i>
+        </button>
+        <a href="{{ url_for('admin_logout') }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-box-arrow-right"></i> Log Out</a>
+    </div>
+</div>
+<div class="admin-tabs">
+    <a href="{{ url_for('admin_dashboard') }}" class="{{ 'active' if request.endpoint == 'admin_dashboard' }}">Dashboard</a>
+    <a href="{{ url_for('admin_courses') }}" class="{{ 'active' if request.endpoint == 'admin_courses' }}">Courses</a>
+    <a href="{{ url_for('admin_students') }}" class="{{ 'active' if request.endpoint == 'admin_students' }}">Students</a>
+    <a href="{{ url_for('admin_materials') }}" class="{{ 'active' if request.endpoint == 'admin_materials' }}">Materials</a>
+    <a href="{{ url_for('admin_quizzes') }}" class="{{ 'active' if request.endpoint == 'admin_quizzes' }}">Quizzes</a>
+    <a href="{{ url_for('admin_scores') }}" class="{{ 'active' if request.endpoint == 'admin_scores' }}">Scores</a>
+    <a href="{{ url_for('admin_announcements') }}" class="{{ 'active' if request.endpoint == 'admin_announcements' }}">Announcements</a>
+</div>

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf_field %}
+{% block title %}Manage Courses{% endblock %}
+{% block top_bar %}{% endblock %}
+{% block bottom_nav %}{% endblock %}
+{% block content %}
+<div class="admin-shell">
+    {% include "admin/_admin_nav.html" %}
+
+    <div class="admin-panel">
+        <h3>{{ "Edit Course" if edit_course else "Add New Course" }}</h3>
+        <form method="POST" action="{{ url_for('admin_course_edit', course_id=edit_course.id) if edit_course else url_for('admin_course_add') }}">
+            {{ csrf_field() }}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="field-label">Course Name</label>
+                    <input type="text" name="course_name" class="form-control" value="{{ edit_course.course_name if edit_course else '' }}" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="field-label">Duration</label>
+                    <input type="text" name="duration" class="form-control" placeholder="e.g. 6 weeks" value="{{ edit_course.duration if edit_course else '' }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="field-label">Instructor</label>
+                    <input type="text" name="instructor" class="form-control" value="{{ edit_course.instructor if edit_course else '' }}">
+                </div>
+                <div class="col-12">
+                    <label class="field-label">Description</label>
+                    <textarea name="description" class="form-control" rows="2">{{ edit_course.description if edit_course else '' }}</textarea>
+                </div>
+            </div>
+            <div class="d-flex gap-2 mt-3">
+                <button type="submit" class="btn btn-primary">{{ "Save Changes" if edit_course else "Add Course" }}</button>
+                {% if edit_course %}<a href="{{ url_for('admin_courses') }}" class="btn btn-outline-primary">Cancel</a>{% endif %}
+            </div>
+        </form>
+    </div>
+
+    <div class="admin-panel">
+        <h3>All Courses ({{ courses|length }})</h3>
+        <div class="table-scroll">
+        <table class="admin-table">
+            <tr><th>Name</th><th>Duration</th><th>Instructor</th><th>Actions</th></tr>
+            {% for c in courses %}
+            <tr>
+                <td>{{ c.course_name }}</td>
+                <td>{{ c.duration or "—" }}</td>
+                <td>{{ c.instructor or "—" }}</td>
+                <td class="row-actions">
+                    <a href="{{ url_for('admin_courses', edit=c.id) }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i></a>
+                    <form method="POST" action="{{ url_for('admin_course_delete', course_id=c.id) }}"
+                          data-confirm-title="Delete course?"
+                          data-confirm-message="This also removes its materials, quizzes and enrollments.">
+                        {{ csrf_field() }}
+                        <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

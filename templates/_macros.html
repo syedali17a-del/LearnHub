@@ -1,0 +1,85 @@
+{% macro csrf_field() -%}
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+{%- endmacro %}
+
+{% macro flash_messages() %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="flash-stack">
+    {% for category, message in messages %}
+    {% set icon = 'bi-check-circle-fill' if category == 'success' else 'bi-x-circle-fill' if category == 'danger' else 'bi-exclamation-triangle-fill' if category == 'warning' else 'bi-info-circle-fill' %}
+    <div class="flash flash-{{ category }}">
+        <i class="bi {{ icon }}"></i>
+        <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+{% endmacro %}
+
+{% macro progress_ring(percent, size=84) %}
+<div class="progress-ring" style="--progress:{{ percent }};--ring-size:{{ size }}px;">
+    <span>{{ percent|round|int }}%</span>
+</div>
+{% endmacro %}
+
+{% macro empty_state(icon, title, message, action_url=none, action_label=none) %}
+<div class="empty-state">
+    <i class="bi {{ icon }}"></i>
+    <h4>{{ title }}</h4>
+    <p>{{ message }}</p>
+    {% if action_url %}
+    <a href="{{ action_url }}" class="btn btn-primary btn-sm">{{ action_label }}</a>
+    {% endif %}
+</div>
+{% endmacro %}
+
+{#
+  ---------------------------------------------------------------
+  Course visuals — thumbnail / difficulty / rating.
+  The database has no columns for these yet, so they're derived
+  deterministically from the course id (same course always shows
+  the same look/badge/rating; nothing random on refresh). Purely
+  presentational — swap for real columns later if you add them.
+  ---------------------------------------------------------------
+#}
+{% macro course_thumbnail(course, enrolled=false) %}
+{% set palettes = [
+    ('linear-gradient(135deg,#4F46E5,#7C3AED)', 'bi-code-slash'),
+    ('linear-gradient(135deg,#0EA5E9,#4F46E5)', 'bi-palette2'),
+    ('linear-gradient(135deg,#7C3AED,#DB2777)', 'bi-graph-up-arrow'),
+    ('linear-gradient(135deg,#059669,#0EA5E9)', 'bi-globe2'),
+    ('linear-gradient(135deg,#F59E0B,#DB2777)', 'bi-camera-fill'),
+    ('linear-gradient(135deg,#4F46E5,#0EA5E9)', 'bi-book-half')
+] %}
+{% set pair = palettes[course.id % palettes|length] %}
+<div class="course-thumb" style="background:{{ pair[0] }};">
+    <i class="bi {{ pair[1] }}"></i>
+    {% if enrolled %}<span class="course-thumb-badge"><i class="bi bi-check-circle-fill"></i> Enrolled</span>{% endif %}
+</div>
+{% endmacro %}
+
+{% macro course_icon_chip(course) %}
+{% set palettes = [
+    ('linear-gradient(135deg,#4F46E5,#7C3AED)', 'bi-code-slash'),
+    ('linear-gradient(135deg,#0EA5E9,#4F46E5)', 'bi-palette2'),
+    ('linear-gradient(135deg,#7C3AED,#DB2777)', 'bi-graph-up-arrow'),
+    ('linear-gradient(135deg,#059669,#0EA5E9)', 'bi-globe2'),
+    ('linear-gradient(135deg,#F59E0B,#DB2777)', 'bi-camera-fill'),
+    ('linear-gradient(135deg,#4F46E5,#0EA5E9)', 'bi-book-half')
+] %}
+{% set pair = palettes[course.id % palettes|length] %}
+<div class="course-thumb-mini" style="background:{{ pair[0] }};"><i class="bi {{ pair[1] }}"></i></div>
+{% endmacro %}
+
+{% macro difficulty_badge(course) %}
+{% set levels = [('Beginner', 'lvl-beginner'), ('Intermediate', 'lvl-intermediate'), ('Advanced', 'lvl-advanced')] %}
+{% set pair = levels[course.id % 3] %}
+<span class="badge-pill {{ pair[1] }}">{{ pair[0] }}</span>
+{% endmacro %}
+
+{% macro rating_stars(course) %}
+{% set rating = (4.3 + (course.id % 6) * 0.1) | round(1) %}
+<span class="rating-stars"><i class="bi bi-star-fill"></i> {{ rating }}</span>
+{% endmacro %}

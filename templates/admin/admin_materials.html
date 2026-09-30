@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf_field %}
+{% block title %}Manage Materials{% endblock %}
+{% block top_bar %}{% endblock %}
+{% block bottom_nav %}{% endblock %}
+{% block content %}
+<div class="admin-shell">
+    {% include "admin/_admin_nav.html" %}
+
+    <div class="admin-panel">
+        <h3>Add Material</h3>
+        <form method="POST" action="{{ url_for('admin_material_add') }}" enctype="multipart/form-data">
+            {{ csrf_field() }}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="field-label">Course</label>
+                    <select name="course_id" class="form-select" required>
+                        <option value="">Select a course</option>
+                        {% for c in course_list %}
+                        <option value="{{ c.id }}">{{ c.course_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="field-label">Title</label>
+                    <input type="text" name="title" class="form-control" placeholder="e.g. Chapter 1 Notes" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="field-label">Difficulty</label>
+                    <select name="difficulty" class="form-select" required>
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="field-label">Type</label><br>
+                    <div class="d-flex gap-3 mt-1">
+                        <label><input type="radio" name="material_type" value="link" checked> Link</label>
+                        <label><input type="radio" name="material_type" value="pdf"> Upload PDF</label>
+                    </div>
+                </div>
+                <div class="col-12" id="material-link-field">
+                    <label class="field-label">Link URL</label>
+                    <input type="url" name="value" class="form-control" placeholder="https://...">
+                </div>
+                <div class="col-12" id="material-file-field" style="display:none;">
+                    <label class="field-label">PDF File</label>
+                    <input type="file" name="file" accept=".pdf" class="form-control">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Add Material</button>
+        </form>
+    </div>
+
+    <div class="admin-panel">
+        <h3>All Materials ({{ materials|length }})</h3>
+        <div class="table-scroll">
+        <table class="admin-table">
+            <tr><th>Course</th><th>Title</th><th>Difficulty</th><th>Type</th><th>Actions</th></tr>
+            {% for m in materials %}
+            <tr>
+                <td>{{ m.course_name }}</td>
+                <td>{{ m.title }}</td>
+                <td><span class="badge-pill lvl-{{ 'beginner' if m.difficulty == 'easy' else 'intermediate' if m.difficulty == 'medium' else 'advanced' }}">{{ m.difficulty|capitalize }}</span></td>
+                <td>{{ "PDF" if m.material_type == "pdf" else "Link" }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('admin_material_delete', material_id=m.id) }}"
+                          data-confirm-title="Delete material?"
+                          data-confirm-message="{{ m.title }} will be permanently removed.">
+                        {{ csrf_field() }}
+                        <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        </div>
+        {% if not materials %}
+        <p style="text-align:center;color:var(--muted);padding:20px 0;">No materials added yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

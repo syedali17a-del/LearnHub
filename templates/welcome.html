@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Welcome{% endblock %}
+{% block bottom_nav %}{% endblock %}
+{% block content %}
+<div class="center-page">
+    <div class="showcase-shape s1" style="background:var(--primary-soft);top:8%;left:8%;"></div>
+    <div class="showcase-shape s2" style="background:var(--violet-soft);bottom:12%;right:10%;"></div>
+    <div class="welcome-card">
+        <div class="brand-logo"><i class="bi bi-mortarboard-fill"></i></div>
+        <h1 class="welcome-title">LearnHub</h1>
+        <p class="auth-subtitle" style="margin-bottom:6px;">Learn &bull; Practice &bull; Progress</p>
+        <p class="welcome-subtitle">
+            Master new skills with interactive courses, quizzes, and progress tracking built for you.
+        </p>
+
+        <a href="{{ url_for('login') }}" class="btn btn-primary btn-block mb-3">
+            <i class="bi bi-box-arrow-in-right"></i> Log In
+        </a>
+
+        <div class="auth-divider">New here?</div>
+
+        <a href="{{ url_for('register') }}" class="btn btn-outline-primary btn-block mb-3">
+            Create Account
+        </a>
+
+        <div class="auth-divider">Staff</div>
+
+        <a href="{{ url_for('admin_login') }}" class="btn btn-dark btn-block">
+            <i class="bi bi-shield-lock-fill"></i> Admin Login
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% from "_macros.html" import empty_state %}
+{% block title %}Materials{% endblock %}
+{% block content %}
+<div class="app-shell">
+    <div class="page-header">
+        <div><p class="eyebrow">Study</p><h1>Materials</h1></div>
+    </div>
+
+    {% if grouped %}
+        {% for course_name, tiers in grouped.items() %}
+        <div class="material-group">
+            <h3>{{ course_name }}</h3>
+
+            {% for tier, label, icon in [('easy','Easy','bi-1-circle-fill'), ('medium','Medium','bi-2-circle-fill'), ('hard','Hard','bi-3-circle-fill')] %}
+            {% if tiers.get(tier) %}
+                <div class="course-card-tags mb-2 mt-2">
+                    <span class="badge-pill lvl-{{ 'beginner' if tier == 'easy' else 'intermediate' if tier == 'medium' else 'advanced' }}">
+                        <i class="bi {{ icon }}"></i> {{ label }}
+                    </span>
+                </div>
+                {% for m in tiers[tier] %}
+                <a href="{{ url_for('uploaded_file', filename=m.value) if m.material_type == 'pdf' else m.value }}"
+                   target="_blank" rel="noopener" class="material-row" style="text-decoration:none;">
+                    <i class="bi {{ 'bi-file-earmark-pdf-fill' if m.material_type == 'pdf' else 'bi-link-45deg' }}"></i>
+                    <span class="title">{{ m.title }}</span>
+                    <span class="type-tag">{{ "PDF" if m.material_type == "pdf" else "Link" }}</span>
+                </a>
+                {% endfor %}
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% endfor %}
+    {% else %}
+        {{ empty_state('bi-folder2-open', 'No materials yet', "Enroll in a course to see its study materials here.", url_for('courses'), 'Browse Courses') }}
+    {% endif %}
+</div>
+{% endblock %}
